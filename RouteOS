@@ -1,0 +1,22 @@
+/interface bridge
+add name=bridge1
+/interface bridge port
+add bridge=bridge1 interface=ether2 hw=yes
+add bridge=bridge1 interface=ether3 hw=yes
+add bridge=bridge1 interface=ether4 hw=yes
+add bridge=bridge1 interface=ether5 hw=yes
+
+#Add VLAN table entries to allow frames with specific VLAN IDs between ports: 
+
+/interface ethernet switch vlan
+add ports=ether2,ether3 switch=switch1 vlan-id=200
+add ports=ether2,ether4 switch=switch1 vlan-id=300
+add ports=ether2,ether5 switch=switch1 vlan-id=400
+
+# Assign vlan-mode and vlan-headermode for each port and also default-vlan-id on ingress for each access port: 
+
+/interface ethernet switch port
+set ether2 vlan-mode=secure vlan-header=add-if-missing
+set ether3 vlan-mode=secure vlan-header=always-strip default-vlan-id=200
+set ether4 vlan-mode=secure vlan-header=always-strip default-vlan-id=300
+set ether5 vlan-mode=secure vlan-header=always-strip default-vlan-id=400
