@@ -1,0 +1,84 @@
+VPN Client setup
+
+Windows 10/11 (Native)
+1. Download .p12 certificate to your Windows PC
+2. Double click, pop up opens
+3. Select "Local Machine" and click "Next".
+4. Nothing to change, click "Next".
+5. Enter .p12 password (in above steps I used "1234567890") and (important) check "Mark this key as exportable", then click "Next".
+6. Select "Place all certificates in the following store", browse and select "Personal". Then click "Next".
+7. Finally click "Finish" and pop up will close.
+8. In Windows search, find "Manage computer certificates" program and open it.
+9. Move your "CA" certificate from "Personal/Certificates" folder to "Trusted Root Certification Authorities/Certificates" folder by simply drag & drop.
+10. Right-click on your "CA" certificate (which you just moved), then "All Tasks", then "Export". Pop up will appear.
+11. Click "Next".
+12. First option "DER" will be selected. so just click "Next".
+13. Enter location where to save this "CA" certificate. Suggestion would be "c:\vpn\home_ca.cer".
+14. Click "Finish" and pop up will close.
+15. Open powershell and create VPN profile using below command:
+
+Add-VpnConnection `
+	-Name Home `
+	-ServerAddress XXXXXXXXXXX.sn.mynetname.net `
+	-TunnelType IKEv2 `
+	-AuthenticationMethod MachineCertificate `
+	-EncryptionLevel maximum `
+	-MachineCertificateIssuerFilter 'C:\vpn\home_ca.cer'
+  
+  
+  Linux (Strongswan plugin for NetworkManager)
+Most of Linux desktop distros uses Network manager by default and Strongswan (for IKE2 functionality) plugin for Network Manager is readily available in official repositories:
+
+    Arch Linux: networkmanager-strongswan
+    Debian: network-manager-strongswan
+    Fedora: strongswan-charon-nm
+
+
+Below guide is based on Fedora 34, Gnome DE using integrated IKE2 (Strongswan) support in Gnome:
+
+1. Prepare certificates (Gnome/NetworkManager accepts only PEM certificates and not PKCS12)
+
+
+# Become root
+sudo su
+
+# Create directory "/opt/vpn/home"
+mkdir -p /opt/vpn/home
+
+# Upload .p12 file to "/opt/vpn/home" directory...
+
+# Change cwd to "/opt/vpn/home"
+cd /opt/vpn/home/
+
+# Extract PEM certificates (private key, certificate and CA)
+openssl pkcs12 -in "Home client1.p12" -nocerts -nodes | sed -ne '/-BEGIN PRIVATE KEY-/,/-END PRIVATE KEY-/p' > "Home client1 key.pem"
+openssl pkcs12 -in "Home client1.p12" -clcerts -nokeys | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > "Home client1 cert.pem"
+openssl pkcs12 -in "Home client1.p12" -cacerts -nokeys -chain | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > "Home client1 CA.pem"
+
+# Enforce permissions (to make sure strongswan/networkmanager can read these files)
+chmod -R 755 /opt/vpn
+chown -R root:root /opt/vpn
+
+
+
+2. Go to Gnome settings --> Network --> VPN --> "+" button --> "IPsec/IKEv2 (strongswan)" choice.
+3. Enter/Select the following details:
+
+    Server->Name: Home
+    Server->Address: XXXXXXXXXXX.sn.mynetname.net
+    Server->Certificate: Select "Home client1 CA.pem" file
+    Server->Identity: Empty
+    Client->Port: Empty
+    Client->Authentication: Certificate
+    Client->Certificate: Certificate/private key
+    Client->Certificate file: Select "Home client1 cert.pem" file
+    Client->Private key: Select "Home client1 key.pem" file
+    Client->Identity: Empty
+    Options->Request an inner IP address: Checked
+    Options->Enforce UDP encapsulation: Unchecked
+    Options->Use IP compression: Unchecked
+    Cipher proposals->Enable custom proposals: Checked
+    Cipher proposals->IKE: aes256-sha256-prfsha256-modp1024
+    Cipher proposals->ESP: aes256-sha1
+
+4. Click Save.
