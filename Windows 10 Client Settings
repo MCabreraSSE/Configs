@@ -1,0 +1,2 @@
+$connection = “[connection name]”
+Set-VpnConnectionIPsecConfiguration -ConnectionName $connection -AuthenticationTransformConstants SHA256128 -CipherTransformConstants AES128 -DHGroup Group14 -EncryptionMethod AES128 -IntegrityCheckMethod SHA256 -PFSgroup PFS2048 -Force
