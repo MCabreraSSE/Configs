@@ -1,0 +1,6 @@
+https://www.ui.com/download/unifi/
+
+
+sudo wget https://dl.ui.com/unifi/7.3.76/unifi_sysvinit_all.deb
+
+sudo dpkg -i unifi_sysvinit_all.deb
