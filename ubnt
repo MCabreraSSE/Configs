@@ -3,6 +3,9 @@ https://www.ui.com/download/accessories/
 https://help.ui.com/hc/en-us/articles/220066768-UniFi-How-to-Install-Update-via-APT-on-Debian-or-Ubuntu
 
 sudo wget https://dl.ui.com/unifi/7.2.95/unifi_sysvinit_all.deb
+sudo wget https://dl.ui.com/unifi/7.3.83/unifi_sysvinit_all.deb
+
+
 
 sudo wget https://dl.ui.com/unifi/7.3.76/unifi_sysvinit_all.deb
 
