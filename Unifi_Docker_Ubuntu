@@ -1,0 +1,50 @@
+
+Installing UniFi Controller on Ubuntu with Docker (Guide by Request)
+
+Step 1. Figure out the UID & GID you want to run the controller as.
+None of the cool kids run as root. Why? Does anyone like the idea of a software bug that could end up with a total system compromise since the software was needlessly running with full system privileges? Yeah, me neither.
+
+Maybe you want to run the container as your own uid/gid, or maybe you want to create one just for this job. Whatever, that's up to you. Let's suppose you want to create one. Let's call the user & group docks. Let's create that user:
+
+sudo adduser docks
+After you add them, figure out what the UID and GID for that user are. If it's the first user you've created since you installed Ubuntu on the host, that's likely 1001 for each. Check /etc/passwd and /etc/group for further info.
+
+Step 2. Install Docker.
+$ curl -fsSL get.docker.com -o get-docker.sh
+$ sh get-docker.sh
+At the end of the installation, it will mention that if you'd like to be able to execute Docker commands as non-root, to add the appropriate users to the docker group. You can do this with:
+
+sudo usermod -aG docker someuser
+Step 3. Setup the space where you're going to maintain the container's persistent storage.
+Containers are, given their ephemeral nature, essentially throw-aways. Obviously, you don't want to heave your database & config into the bit bucket. So, you create a directory on the host filesystem that you'll map into the container. In this case, you'll want the directory to be owned by the docks user (or whatever uid/gid you decided on).
+
+$ sudo mkdir -p /var/docks/unifi
+$ sudo chown docks:docks /var/docks/unifi
+Step 4. Pull and create your container.
+In this example, I'm using Jacob Alberty's excellent container. He does a great job of tagging releases by version number, stable, sc (stable candidate), and oldstable. Chances are you want to be on the current stable release. Pull the container now. It will download and unpack. This takes a minute or 2.
+
+docker pull jacobalberty/unifi:stable
+Now create the container. Here's where it all comes together. You need the UID, GID, and the directory you setup in Step 3.
+
+docker run -d \
+    --restart=unless-stopped \
+    --net=host \
+    --name=unifi \
+    -e TZ='America/New_York' \
+    -e RUNAS_UID0=false \
+    -e UNIFI_UID=1001 \
+    -e UNIFI_GID=1001 \
+    -v /var/docks/unifi:/unifi \
+    jacobalberty/unifi:stable
+You just created and launched a container that's named unifi, will automatically restart if it crashes (unless you explicitly stopped it), lives in the GMT-5 timezone, doesn't run as root (uid/gid are both 1001), and has /var/docks/unifi from the Ubuntu host mapped to /unifi inside the container. What about the --net=host business? Well, that's done to allow for L2 discovery. If you don't care/need L2 discovery, just map ports. Read Jacob's page to find out what ports can be exposed. By going with --net=host, you've really got a shortcut of sorts.
+
+Your controller is up. Go forth and configure in the usual manner.
+
+How do I upgrade this thing?
+$ docker pull jacobalberty/unifi:stable
+$ docker stop unifi
+$ docker rename unifi unifi.save
+$ <the same command you used to create the container in Step 4>
+Happy with your upgrade? docker rm unifi.save
+
+You'll at some point want to clean up your leftover images. docker images will reveal which ones you have. You only really need to keep the unifi image that's tagged "stable", and can nuke the other container id's for jacobalberty/unifi.
