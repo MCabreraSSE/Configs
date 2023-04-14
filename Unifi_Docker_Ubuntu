@@ -48,3 +48,14 @@ $ <the same command you used to create the container in Step 4>
 Happy with your upgrade? docker rm unifi.save
 
 You'll at some point want to clean up your leftover images. docker images will reveal which ones you have. You only really need to keep the unifi image that's tagged "stable", and can nuke the other container id's for jacobalberty/unifi.
+
+
+
+
+
+
+
+
+##
+# https://www.reddit.com/r/Ubiquiti/comments/7po0jr/installing_unifi_controller_on_ubuntu_with_docker/
+##
