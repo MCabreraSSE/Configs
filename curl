@@ -1,0 +1,5 @@
+##
+curl ifconfig.me/all
+
+####
+curl wttr.in
