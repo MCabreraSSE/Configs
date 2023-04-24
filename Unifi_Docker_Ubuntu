@@ -23,7 +23,9 @@ $ sudo chown docks:docks /var/docks/unifi
 Step 4. Pull and create your container.
 In this example, I'm using Jacob Alberty's excellent container. He does a great job of tagging releases by version number, stable, sc (stable candidate), and oldstable. Chances are you want to be on the current stable release. Pull the container now. It will download and unpack. This takes a minute or 2.
 
-docker pull jacobalberty/unifi:stable
+docker pull jacobalberty/unifi
+
+
 Now create the container. Here's where it all comes together. You need the UID, GID, and the directory you setup in Step 3.
 
 docker run -d \
@@ -35,7 +37,8 @@ docker run -d \
     -e UNIFI_UID=1001 \
     -e UNIFI_GID=1001 \
     -v /var/docks/unifi:/unifi \
-    jacobalberty/unifi:stable
+    jacobalberty/unifi
+
 You just created and launched a container that's named unifi, will automatically restart if it crashes (unless you explicitly stopped it), lives in the GMT-5 timezone, doesn't run as root (uid/gid are both 1001), and has /var/docks/unifi from the Ubuntu host mapped to /unifi inside the container. What about the --net=host business? Well, that's done to allow for L2 discovery. If you don't care/need L2 discovery, just map ports. Read Jacob's page to find out what ports can be exposed. By going with --net=host, you've really got a shortcut of sorts.
 
 Your controller is up. Go forth and configure in the usual manner.
