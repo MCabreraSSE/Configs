@@ -6,3 +6,24 @@ aws ec2 describe-instances --query "Reservations[*].Instances[*].{PublicIP:Publi
 
 # Lista instancias en estado running
 aws ec2 describe-instances --instance-ids i-0291bef507ad91c00 --region us-west-2 --output table
+
+List the contents of an S3 bucket
+aws s3 ls s3://<bucketname>/
+Download contents of bucket
+aws s3 sync s3://bucketname s3-files-dir
+Get basic account info
+aws sts get-caller-identity
+List IAM users
+aws iam list-users
+List IAM roles
+aws iam list-roles
+List Lambda Functions
+aws lambda list-functions --region <region>
+Look at environment variables set for secrets and analyze code
+aws lambda get-function --function-name <lambda function>
+List EC2 subnets
+aws ec2 describe-subnets
+List ec2 network interfaces
+aws ec2 describe-network-interfaces
+List DirectConnect (VPN) connections
+aws directconnect describe-connections
