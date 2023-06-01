@@ -1,0 +1,9 @@
+####
+https://www.pool.ntp.org/zone/ar
+####
+
+ar.pool.ntp.org
+server 2.ar.pool.ntp.org
+server 0.south-america.pool.ntp.org
+server 2.south-america.pool.ntp.org
+     
